@@ -1,3 +1,5 @@
+"use server";
+
 import { z } from "zod";
 import { signUpSchema } from "@/utils/validation";
 import { db } from "@/utils/prisma";
