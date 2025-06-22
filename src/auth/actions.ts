@@ -3,8 +3,10 @@
 import { z } from "zod";
 import { signUpSchema } from "@/utils/validation";
 import { db } from "@/utils/prisma";
-import { hashPassword } from "./passwordHasher";
+import { createSalt, hashPassword } from "./passwordHasher";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { createUserSession } from "./session";
 
 export async function signUp(
   unSafeData: z.infer<typeof signUpSchema>
@@ -21,8 +23,31 @@ export async function signUp(
     throw new Error("User with this email already exists");
   }
 
-  const hashedPassword = await hashPassword(data.password, "salt");
-  console.log("Hashed Password:", hashedPassword);
+  try {
+    const salt = createSalt();
 
-  return null;
+    const hashedPassword = await hashPassword(data.password, salt).toString();
+    console.log("Hashed Password:", hashedPassword);
+
+    const user = await db.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+      },
+    });
+
+    if (user === null) return "unable to create user";
+
+    // Δημιούργησε το session object που περιμένει η function
+    await createUserSession(
+      { userId: user.id, role: user.role },
+      await cookies()
+    );
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw new Error("Failed to create user");
+  }
+
+  return redirect("/");
 }

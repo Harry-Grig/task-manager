@@ -27,6 +27,7 @@ const roboto = Roboto({
 
 export default function SignUpForm() {
   const [error, setError] = useState<string>();
+
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -39,10 +40,24 @@ export default function SignUpForm() {
 
   async function onSubmit(data: z.infer<typeof signUpSchema>) {
     try {
+      setError(undefined); // Clear previous errors
       const error = await signUp(data);
-      setError(error ?? undefined);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+
+      // Αν επιστραφεί error string, το εμφανίζουμε
+      if (error) {
+        setError(error);
+      }
+      // Αν δεν υπάρχει error, το redirect θα γίνει από το server action
+    } catch (err: any) {
+      // Αγνοούμε το NEXT_REDIRECT error γιατί είναι φυσιολογικό
+      if (err?.digest?.startsWith("NEXT_REDIRECT")) {
+        // Αυτό είναι το redirect - δεν κάνουμε τίποτα
+        return;
+      }
+
+      // Μόνο για άλλα errors
+      console.error("Form submission error:", err);
+      setError("An unexpected error occurred");
     }
   }
 
