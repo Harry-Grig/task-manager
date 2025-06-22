@@ -52,7 +52,7 @@ export default function Home() {
               Get Started
             </Button>
           </Link>
-          <Link href="/sign-up">
+          <Link href="/sign-in">
             <Button
               className={`text-xl font-medium ${roboto.className} text-white bg-primary border border-white hover:bg-white hover:text-primary hover:shadow-2xl hover:scale-105 active:scale-95 active:shadow-inner cursor-pointer transition-all duration-200 px-8 py-3 rounded-full`}
             >

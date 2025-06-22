@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { signInSchema, signUpSchema } from "@/utils/validation";
 import { db } from "@/utils/prisma";
-import { createSalt, hashPassword } from "./passwordHasher";
+import { comparePasswords, createSalt, hashPassword } from "./passwordHasher";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createUserSession } from "./session";
@@ -26,7 +26,7 @@ export async function signUp(
   try {
     const salt = createSalt();
 
-    const hashedPassword = await hashPassword(data.password, salt).toString();
+    const hashedPassword = await hashPassword(data.password, salt);
     console.log("Hashed Password:", hashedPassword);
 
     const user = await db.user.create({
@@ -34,6 +34,7 @@ export async function signUp(
         name: data.name,
         email: data.email,
         password: hashedPassword,
+        salt: salt,
       },
     });
 
@@ -52,4 +53,35 @@ export async function signUp(
   return redirect("/profile");
 }
 
-export async function signIn(unSafeData: z.infer<typeof signInSchema>) {}
+export async function signIn(unSafeData: z.infer<typeof signInSchema>) {
+  // Διόρθωση 1: Πρόσθεσε await
+  const user = await db.user.findUnique({
+    where: { email: unSafeData.email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      password: true,
+      role: true,
+      salt: true,
+    },
+  });
+
+  if (user === null) {
+    return "User not found";
+  }
+
+  const isCorrectPassword = await comparePasswords({
+    hashedPassword: user.password,
+    salt: user.salt,
+    password: unSafeData.password,
+  });
+
+  if (!isCorrectPassword) {
+    return "Incorrect password";
+  }
+
+  createUserSession({ userId: user.id, role: user.role }, await cookies());
+
+  redirect("/profile");
+}

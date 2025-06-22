@@ -14,6 +14,7 @@ import {
 import { signInSchema } from "@/utils/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
+import { signIn } from "@/auth/actions";
 
 export default function SignInForm() {
   const [error, setError] = useState("");
@@ -25,7 +26,29 @@ export default function SignInForm() {
     },
   });
 
-  const onSubmit = async (data: any) => {};
+  const onSubmit = async (data: any) => {
+    try {
+      // Clear previous errors
+      setError("");
+      const error = await signIn(data);
+
+      // Αν επιστραφεί error string, το εμφανίζουμε
+      if (error) {
+        setError(error);
+      }
+      // Αν δεν υπάρχει error, το redirect θα γίνει από το server action
+    } catch (err: any) {
+      // Αγνοούμε το NEXT_REDIRECT error γιατί είναι φυσιολογικό
+      if (err?.digest?.startsWith("NEXT_REDIRECT")) {
+        // Αυτό είναι το redirect - δεν κάνουμε τίποτα
+        return;
+      }
+
+      // Μόνο για άλλα errors
+      console.error("Form submission error:", err);
+      setError("An unexpected error occurred");
+    }
+  };
 
   return (
     <div>
