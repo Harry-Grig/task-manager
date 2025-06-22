@@ -1,5 +1,7 @@
+import { getCurrentUser } from "@/auth/currentsUser";
 import { db } from "@/utils/prisma";
 import { Roboto } from "next/font/google";
+import { cookies } from "next/headers";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -7,7 +9,8 @@ const roboto = Roboto({
   variable: "--font-roboto",
 });
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const user = await getCurrentUser();
   return (
     <div className="bg-gradient-to-tr from-blue-900 via-primary to-indigo-900 min-h-screen flex items-center justify-center">
       <div className="backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-xl max-w-lg w-full mx-4 p-10 flex flex-col items-center">
@@ -31,7 +34,7 @@ export default function ProfilePage() {
           <div className="w-full bg-white/30 rounded-xl p-4 flex flex-col gap-2 shadow">
             <div className="flex justify-between items-center">
               <span className="text-white/90 font-medium">Name:</span>
-              <span className="text-white font-bold">John Doe</span>
+              <span className="text-white font-bold">{user?.userId}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-white/90 font-medium">Email:</span>

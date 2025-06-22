@@ -1,6 +1,6 @@
 import { Role } from "@/generated/prisma";
 import { cookies } from "next/headers";
-import z from "zod";
+import z, { string } from "zod";
 import crypto from "crypto";
 import { redis } from "@/redis/redis";
 
@@ -29,7 +29,7 @@ export type Cookies = {
 
 export async function createUserSession(
   user: z.infer<typeof sessionSchema>,
-  cookies: Cookies
+  cookies: Pick<Cookies, "set">
 ) {
   const sessionId = crypto.randomBytes(512).toString("hex").normalize();
   await redis.set(`session:${sessionId}`, sessionSchema.parse(user), {
@@ -45,4 +45,33 @@ function SetCookie(sessionId: string, cookies: Pick<Cookies, "set">) {
     sameSite: "lax",
     expires: Date.now() + SESSION_EXPIRATION_SECONDS * 1000,
   });
+}
+
+// Διόρθωση 1: Κάνε την function async
+export async function getUserFromSession(cookies: Pick<Cookies, "get">) {
+  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value;
+
+  // Διόρθωση 2: Έλεγχος για undefined αντί για null
+  if (!sessionId) return null;
+
+  return await getUserSessionById(sessionId);
+}
+
+export async function getUserSessionById(sessionId: string) {
+  const sessionData = await redis.get(`session:${sessionId}`);
+  if (sessionData === null) return null;
+
+  // Διόρθωση 3: Χρήση safeParse() αντί για parse() ή απλά parse()
+  try {
+    const user = sessionSchema.parse(sessionData);
+    return user;
+  } catch (error) {
+    console.error("Session parsing error:", error);
+    return null;
+  }
+
+  // Εναλλακτικά, μπορείς να χρησιμοποιήσεις safeParse():
+  // const result = sessionSchema.safeParse(sessionData);
+  // if (!result.success) return null;
+  // return result.data;
 }

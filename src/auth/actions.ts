@@ -49,5 +49,5 @@ export async function signUp(
     throw new Error("Failed to create user");
   }
 
-  return redirect("/");
+  return redirect("/profile");
 }
