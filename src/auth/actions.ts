@@ -6,7 +6,7 @@ import { db } from "@/utils/prisma";
 import { comparePasswords, createSalt, hashPassword } from "./passwordHasher";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { createUserSession } from "./session";
+import { createUserSession, removeUserFromsession } from "./session";
 
 export async function signUp(
   unSafeData: z.infer<typeof signUpSchema>
@@ -25,9 +25,7 @@ export async function signUp(
 
   try {
     const salt = createSalt();
-
     const hashedPassword = await hashPassword(data.password, salt);
-    console.log("Hashed Password:", hashedPassword);
 
     const user = await db.user.create({
       data: {
@@ -40,9 +38,14 @@ export async function signUp(
 
     if (user === null) return "unable to create user";
 
-    // Δημιούργησε το session object που περιμένει η function
+    // Διόρθωση 3: Περάσε όλα τα στοιχεία στο session
     await createUserSession(
-      { userId: user.id, role: user.role },
+      {
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
       await cookies()
     );
   } catch (error) {
@@ -54,7 +57,6 @@ export async function signUp(
 }
 
 export async function signIn(unSafeData: z.infer<typeof signInSchema>) {
-  // Διόρθωση 1: Πρόσθεσε await
   const user = await db.user.findUnique({
     where: { email: unSafeData.email },
     select: {
@@ -81,7 +83,21 @@ export async function signIn(unSafeData: z.infer<typeof signInSchema>) {
     return "Incorrect password";
   }
 
-  createUserSession({ userId: user.id, role: user.role }, await cookies());
+  // Διόρθωση 4: Πρόσθεσε await και περάσε όλα τα στοιχεία
+  await createUserSession(
+    {
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    await cookies()
+  );
 
   redirect("/profile");
+}
+
+export async function logOut() {
+  await removeUserFromsession(await cookies());
+  redirect("/");
 }

@@ -7,8 +7,11 @@ import { redis } from "@/redis/redis";
 const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7; // 7 days
 const COOKIE_SESSION_KEY = "custom-auth-session-id";
 
+// Διόρθωση 1: Πρόσθεσε name στο session schema
 const sessionSchema = z.object({
   userId: z.string(),
+  name: z.string().nullable(), // Πρόσθεσε το name
+  email: z.string(), // Πρόσθεσε και email αν θες
   role: z.enum([Role.ADMIN, Role.USER]),
 });
 
@@ -32,7 +35,7 @@ export async function createUserSession(
   cookies: Pick<Cookies, "set">
 ) {
   const sessionId = crypto.randomBytes(512).toString("hex").normalize();
-  await redis.set(`session:${sessionId}`, sessionSchema.parse(user), {
+  await redis.set(`session:${sessionId}`, JSON.stringify(user), {
     ex: SESSION_EXPIRATION_SECONDS,
   });
   SetCookie(sessionId, cookies);
@@ -47,13 +50,9 @@ function SetCookie(sessionId: string, cookies: Pick<Cookies, "set">) {
   });
 }
 
-// Διόρθωση 1: Κάνε την function async
 export async function getUserFromSession(cookies: Pick<Cookies, "get">) {
   const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value;
-
-  // Διόρθωση 2: Έλεγχος για undefined αντί για null
   if (!sessionId) return null;
-
   return await getUserSessionById(sessionId);
 }
 
@@ -61,17 +60,22 @@ export async function getUserSessionById(sessionId: string) {
   const sessionData = await redis.get(`session:${sessionId}`);
   if (sessionData === null) return null;
 
-  // Διόρθωση 3: Χρήση safeParse() αντί για parse() ή απλά parse()
   try {
+    // Διόρθωση 2: Parse το JSON που αποθηκεύτηκε
     const user = sessionSchema.parse(sessionData);
     return user;
   } catch (error) {
     console.error("Session parsing error:", error);
     return null;
   }
+}
 
-  // Εναλλακτικά, μπορείς να χρησιμοποιήσεις safeParse():
-  // const result = sessionSchema.safeParse(sessionData);
-  // if (!result.success) return null;
-  // return result.data;
+export async function removeUserFromsession(
+  cookies: Pick<Cookies, "delete" | "get">
+) {
+  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value;
+  if (!sessionId) return;
+
+  await redis.del(`session:${sessionId}`);
+  cookies.delete(COOKIE_SESSION_KEY);
 }
