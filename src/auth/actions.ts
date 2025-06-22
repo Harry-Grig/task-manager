@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { signUpSchema } from "@/utils/validation";
+import { signInSchema, signUpSchema } from "@/utils/validation";
 import { db } from "@/utils/prisma";
 import { createSalt, hashPassword } from "./passwordHasher";
 import { redirect } from "next/navigation";
@@ -51,3 +51,5 @@ export async function signUp(
 
   return redirect("/profile");
 }
+
+export async function signIn(unSafeData: z.infer<typeof signInSchema>) {}
