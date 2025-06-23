@@ -53,7 +53,7 @@ export async function signUp(
     throw new Error("Failed to create user");
   }
 
-  return redirect("/profile");
+  return redirect("/dashboard");
 }
 
 export async function signIn(unSafeData: z.infer<typeof signInSchema>) {
@@ -94,7 +94,7 @@ export async function signIn(unSafeData: z.infer<typeof signInSchema>) {
     await cookies()
   );
 
-  redirect("/profile");
+  redirect("/dashboard");
 }
 
 export async function logOut() {
