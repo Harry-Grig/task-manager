@@ -16,19 +16,12 @@ import Link from "next/link";
 import { logOut } from "@/auth/actions";
 
 const navItems = [
-  {
-    label: "Dashboard",
-    icon: <Menu className="w-5 h-5" />,
-    href: "/dashboard",
-  },
-  { label: "Profile", icon: <User className="w-5 h-5" />, href: "/profile" },
-  { label: "Tasks", icon: <ListChecks className="w-5 h-5" />, href: "/tasks" },
-  {
-    label: "Settings",
-    icon: <Settings className="w-5 h-5" />,
-    href: "/settings",
-  },
+  { label: "Dashboard", icon: <Menu className="w-5 h-5" />, href: "/admin" },
+  { label: "Users", icon: <User className="w-5 h-5" />, href: "/admin/users" },
+  { label: "Tasks", icon: <ListChecks className="w-5 h-5" />, href: "/admin/tasks" },
+  { label: "Settings", icon: <Settings className="w-5 h-5" />, href: "/admin/settings" },
 ];
+
 
 import React from "react";
 
@@ -40,7 +33,7 @@ type UserType = {
 };
 
 type DashboardClientProps = {
-  user: UserType | null;
+  user: UserType;
 };
 
 const DashboardClient = ({ user }: DashboardClientProps) => {

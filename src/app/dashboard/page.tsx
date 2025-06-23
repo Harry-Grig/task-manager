@@ -2,7 +2,7 @@ import { getCurrentUser } from "@/auth/currentsUser";
 import DashboardClient from "./dashboardClient";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser({ withFullUser: true  });
 
   if (!user) {
     return (
