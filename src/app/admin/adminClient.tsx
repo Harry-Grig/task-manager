@@ -33,7 +33,7 @@ type UserType = {
 };
 
 type DashboardClientProps = {
-  user: UserType;
+  user: UserType | null;
 };
 
 const DashboardClient = ({ user }: DashboardClientProps) => {

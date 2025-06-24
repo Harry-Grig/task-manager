@@ -8,25 +8,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { useState } from "react";
+import { createTask } from "@/app/actions/createTask";
 
-// Dummy users array for demonstration. Replace with your own data fetching logic.
-const users = [
-    {
-        id: "1",
-        name: "John Doe",
-        email: "john@example.com",
-        role: "USER",
-    },
-    {
-        id: "2",
-        name: "Jane Smith",
-        email: "jane@example.com",
-        role: "ADMIN",
-    },
-];
+type UserType = {
+    id: string;
+    name: string | null;
+    email: string;
+    role: "USER" | "ADMIN";
+    _count?: {
+        tasks: number;
+    };
+}
 
-export default function AdminUsersPage() {
-    // You can remove this dummy data and fetch your users as needed
+type AdminUsersPageProps = {
+    users: UserType[];
+};
+
+export default function AdminUsersPage({ users }: AdminUsersPageProps) {
     return (
         <div className="max-w-3xl mx-auto py-10 space-y-6">
             <h1 className="text-3xl font-bold mb-6 text-rose-700 dark:text-rose-400">
@@ -49,6 +47,11 @@ export default function AdminUsersPage() {
                                 <p className="text-sm capitalize text-rose-700 dark:text-rose-400">
                                     Role: {user.role.toLowerCase()}
                                 </p>
+                                {user._count && (
+                                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                        Tasks: {user._count.tasks}
+                                    </p>
+                                )}
                             </div>
                             <div className="flex gap-2">
                                 <AddTaskDialog userId={user.id} />
@@ -74,6 +77,12 @@ export default function AdminUsersPage() {
 
 function AddTaskDialog({ userId }: { userId: string }) {
     const [open, setOpen] = useState(false);
+    
+    const handleSubmit = async (formData: FormData) => {
+        await createTask(formData);
+        setOpen(false); // Κλείσε το dialog μετά την επιτυχή δημιουργία
+    };
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -89,7 +98,13 @@ function AddTaskDialog({ userId }: { userId: string }) {
                 <DialogHeader>
                     <DialogTitle>Add Task for User</DialogTitle>
                 </DialogHeader>
-                <form className="space-y-4">
+                <form 
+                    action={handleSubmit}
+                    className="space-y-4"
+                >
+                    {/* Hidden input για το userId */}
+                    <input type="hidden" name="userId" value={userId} />
+                    
                     <div>
                         <Label htmlFor="title">Title</Label>
                         <Input id="title" name="title" required />
@@ -114,18 +129,19 @@ function AddTaskDialog({ userId }: { userId: string }) {
                             placeholder="PENDING, IN_PROGRESS, COMPLETED"
                         />
                     </div>
+                    
+                    <DialogFooter>
+                        <Button
+                            type="submit"
+                            className="bg-rose-700 text-white hover:bg-rose-800"
+                        >
+                            Create Task
+                        </Button>
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                            Cancel
+                        </Button>
+                    </DialogFooter>
                 </form>
-                <DialogFooter>
-                    <Button
-                        type="submit"
-                        className="bg-rose-700 text-white hover:bg-rose-800"
-                    >
-                        Create Task
-                    </Button>
-                    <Button variant="outline" onClick={() => setOpen(false)}>
-                        Cancel
-                    </Button>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
