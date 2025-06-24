@@ -3,7 +3,7 @@ import { getUserFromSession } from "./auth/session";
 import { NextResponse } from "next/server";
 
 const privateRoutes = ["/dashboard", "/dashboard/settings", "/dashboard/profile", "/dashboard/tasks"];
-const adminRoutes = ["/admin", "/admin/settings"];
+const adminRoutes = ["/admin", "/admin/tasks", "/admin/users", "/admin/users/[userId]" ,"/admin/profile" ,"/admin/settings"];
 
 export async function middleware(request: NextRequest) {
   const res = await middlewareAuth(request) ?? NextResponse.next()
@@ -13,19 +13,19 @@ export async function middleware(request: NextRequest) {
 async function middlewareAuth(request: NextRequest) {
   const user = await getUserFromSession(request.cookies);
   
-  // Έλεγχος αν ο χρήστης είναι ADMIN και προσπαθεί να πάει σε private routes
+  // Check if the user is ADMIN and tries to access private routes
   if (privateRoutes.includes(request.nextUrl.pathname)) {
     if (user === null) {
       return Response.redirect(new URL("/sign-in", request.url));
     }
     
-    // Αν ο χρήστης είναι ADMIN, redirect στο /admin
+    // If the user is ADMIN, redirect to /admin
     if (user.role === "ADMIN") {
       return Response.redirect(new URL("/admin", request.url));
     }
   }
   
-  // Έλεγχος για admin routes
+  // Check for admin routes
   if (adminRoutes.includes(request.nextUrl.pathname)) {
     if (user === null) {
       return Response.redirect(new URL("/sign-in", request.url));

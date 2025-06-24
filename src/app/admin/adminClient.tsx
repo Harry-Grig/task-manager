@@ -27,7 +27,7 @@ import React from "react";
 
 type UserType = {
   name: string | null;
-  id: string;
+  userId: string;
   email: string;
   role: "ADMIN" | "USER";
 };
@@ -178,7 +178,7 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
                     User ID:
                   </span>
                   <span className="text-foreground font-bold">
-                    {user?.id || "-"}
+                    {user?.userId || "-"}
                   </span>
                 </div>
               </div>
