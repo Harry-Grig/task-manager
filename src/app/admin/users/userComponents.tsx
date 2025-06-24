@@ -34,37 +34,37 @@ export default function AdminUsersPage({ users }: AdminUsersPageProps) {
                 {users.map((user) => (
                     <Card
                         key={user.id}
-                        className="p-4 rounded-xl shadow-md bg-white dark:bg-zinc-900 space-y-2 border border-rose-200 dark:border-rose-800"
+                        className="p-4 rounded-xl shadow-md bg-white dark:bg-zinc-900 space-y-2 border border-rose-200 dark:border-rose-800 transition-all duration-200 hover:scale-[1.025] hover:shadow-lg hover:border-rose-400 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-zinc-800 group"
                     >
                         <div className="flex justify-between items-center">
                             <div>
-                                <p className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">
+                                <p className="font-semibold text-lg text-zinc-900 dark:text-zinc-100 group-hover:text-rose-700 dark:group-hover:text-rose-400 transition-colors duration-200">
                                     {user.name}
                                 </p>
-                                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400 group-hover:text-rose-500 dark:group-hover:text-rose-300 transition-colors duration-200">
                                     {user.email}
                                 </p>
-                                <p className="text-sm capitalize text-rose-700 dark:text-rose-400">
+                                <p className="text-sm capitalize text-rose-700 dark:text-rose-400 group-hover:underline">
                                     Role: {user.role.toLowerCase()}
                                 </p>
                                 {user._count && (
-                                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                    <p className="text-sm text-zinc-500 dark:text-zinc-400 group-hover:text-rose-500 dark:group-hover:text-rose-300 transition-colors duration-200">
                                         Tasks: {user._count.tasks}
                                     </p>
                                 )}
                             </div>
                             <div className="flex gap-2">
                                 <AddTaskDialog userId={user.id} />
-                                <Link
-                                    href={`/admin/users/${user.id}`}
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="border-rose-400 text-rose-700 dark:border-rose-500 dark:text-rose-300 bg-white dark:bg-zinc-900 hover:bg-rose-100 dark:hover:bg-rose-900 hover:scale-110 hover:shadow-xl hover:border-rose-600 dark:hover:border-rose-400 focus:ring-4 focus:ring-rose-200 dark:focus:ring-rose-800 transition-all duration-200 font-semibold cursor-pointer"
                                 >
-                                    <Button
-                                        variant="outline"
-                                        className="border-rose-400 text-rose-700 dark:border-rose-500 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900"
-                                    >
+                                    <Link href={`/admin/users/${user.id}`}>
                                         View Tasks
-                                    </Button>
-                                </Link>
+                                    </Link>
+                                </Button>
+
                                 <RoleToggle user={user} />
                             </div>
                         </div>
@@ -80,7 +80,7 @@ function AddTaskDialog({ userId }: { userId: string }) {
     
     const handleSubmit = async (formData: FormData) => {
         await createTask(formData);
-        setOpen(false); // Κλείσε το dialog μετά την επιτυχή δημιουργία
+        setOpen(false); // Close the dialog after successful creation
     };
 
     return (
@@ -89,7 +89,7 @@ function AddTaskDialog({ userId }: { userId: string }) {
                 <Button
                     size="sm"
                     variant="secondary"
-                    className="text-rose-700 border-rose-400 dark:text-rose-300 dark:border-rose-500"
+                    className="text-rose-700 border-rose-400 dark:text-rose-300 dark:border-rose-500 bg-white dark:bg-zinc-900 hover:bg-rose-100 dark:hover:bg-rose-900 hover:scale-110 hover:shadow-xl hover:border-rose-600 dark:hover:border-rose-400 focus:ring-4 focus:ring-rose-200 dark:focus:ring-rose-800 transition-all duration-200 font-semibold cursor-pointer"
                 >
                     + Add Task
                 </Button>
@@ -102,7 +102,7 @@ function AddTaskDialog({ userId }: { userId: string }) {
                     action={handleSubmit}
                     className="space-y-4"
                 >
-                    {/* Hidden input για το userId */}
+                    {/* Hidden input for userId */}
                     <input type="hidden" name="userId" value={userId} />
                     
                     <div>
@@ -133,11 +133,13 @@ function AddTaskDialog({ userId }: { userId: string }) {
                     <DialogFooter>
                         <Button
                             type="submit"
-                            className="bg-rose-700 text-white hover:bg-rose-800"
+                            className="bg-rose-700 text-white hover:bg-rose-800 hover:scale-105 hover:shadow-lg focus:ring-4 focus:ring-rose-200 dark:focus:ring-rose-800 transition-all duration-200 font-semibold cursor-pointer"
                         >
                             Create Task
                         </Button>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}
+                            className="border-rose-400 text-rose-700 dark:border-rose-500 dark:text-rose-300 bg-white dark:bg-zinc-900 hover:bg-rose-100 dark:hover:bg-rose-900 hover:scale-105 hover:shadow-lg hover:border-rose-600 dark:hover:border-rose-400 focus:ring-4 focus:ring-rose-200 dark:focus:ring-rose-800 transition-all duration-200 font-semibold cursor-pointer"
+                        >
                             Cancel
                         </Button>
                     </DialogFooter>
@@ -154,9 +156,11 @@ function RoleToggle({ user }: { user: { id: string; role: string } }) {
         <Button
             variant={isAdmin ? "destructive" : "secondary"}
             className={
-                isAdmin
+                (isAdmin
                     ? "bg-rose-700 text-white hover:bg-rose-800 border-rose-400 dark:bg-rose-600 dark:hover:bg-rose-700"
-                    : "border-rose-400 text-rose-700 dark:text-rose-300 dark:border-rose-500"
+                    : "border-rose-400 text-rose-700 dark:text-rose-300 dark:border-rose-500 bg-white dark:bg-zinc-900 hover:bg-rose-100 dark:hover:bg-rose-900")
+                +
+                " hover:scale-110 hover:shadow-xl hover:border-rose-600 dark:hover:border-rose-400 focus:ring-4 focus:ring-rose-200 dark:focus:ring-rose-800 transition-all duration-200 font-semibold cursor-pointer"
             }
             onClick={() => setIsAdmin((v) => !v)}
         >

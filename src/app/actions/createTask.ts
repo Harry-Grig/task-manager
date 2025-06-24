@@ -7,8 +7,8 @@ export async function createTask(formData: FormData) {
   const title = formData.get("title") as string
   const description = formData.get("description") as string
   const dueDate = formData.get("dueDate") as string
-  const priority = formData.get("priority") as string
-  const status = formData.get("status") as string
+  const priority = (formData.get("priority") as string)?.toUpperCase()
+  const status = (formData.get("status") as string)?.toUpperCase()
   const userId = formData.get("userId") as string
 
   await db.task.create({
