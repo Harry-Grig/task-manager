@@ -38,7 +38,6 @@ export async function signUp(
 
     if (user === null) return "unable to create user";
 
-    // Διόρθωση 3: Περάσε όλα τα στοιχεία στο session
     await createUserSession(
       {
         userId: user.id,
@@ -53,48 +52,69 @@ export async function signUp(
     throw new Error("Failed to create user");
   }
 
-  return redirect("/dashboard");
+  redirect("/dashboard");
 }
 
 export async function signIn(unSafeData: z.infer<typeof signInSchema>) {
-  const user = await db.user.findUnique({
-    where: { email: unSafeData.email },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      password: true,
-      role: true,
-      salt: true,
-    },
-  });
+  try {
+    
+    const { data, success } = signInSchema.safeParse(unSafeData);
+    if (!success) {
+      return "Invalid input data";
+    }
 
-  if (user === null) {
-    return "User not found";
+    const user = await db.user.findUnique({
+      where: { email: data.email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        role: true,
+        salt: true,
+      },
+    });
+
+    if (user === null) {
+      return "User not found";
+    }
+
+    const isCorrectPassword = await comparePasswords({
+      hashedPassword: user.password,
+      salt: user.salt,
+      password: data.password,
+    });
+
+    if (!isCorrectPassword) {
+      return "Incorrect password";
+    }
+
+    // Δημιουργία session
+    await createUserSession(
+      {
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      await cookies()
+    );
+
+
+    if (user.role === 'ADMIN') {
+      redirect('/admin');
+    } else {
+      redirect("/dashboard");
+    }
+
+  } catch (error) {
+    console.error("Error during sign in:", error);
+ 
+    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+      throw error; // Re-throw redirect errors
+    }
+    return "Sign in failed";
   }
-
-  const isCorrectPassword = await comparePasswords({
-    hashedPassword: user.password,
-    salt: user.salt,
-    password: unSafeData.password,
-  });
-
-  if (!isCorrectPassword) {
-    return "Incorrect password";
-  }
-
-  // Διόρθωση 4: Πρόσθεσε await και περάσε όλα τα στοιχεία
-  await createUserSession(
-    {
-      userId: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-    await cookies()
-  );
-
-  redirect("/dashboard");
 }
 
 export async function logOut() {
