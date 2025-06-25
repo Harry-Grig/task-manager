@@ -6,7 +6,6 @@ import {
   Menu,
   User,
   ListChecks,
-  Settings,
   LogOut,
   Bell,
   Sun,
@@ -16,18 +15,8 @@ import Link from "next/link";
 import { logOut } from "@/auth/actions";
 
 const navItems = [
-  {
-    label: "Dashboard",
-    icon: <Menu className="w-5 h-5" />,
-    href: "/dashboard",
-  },
   { label: "Profile", icon: <User className="w-5 h-5" />, href: "/dashboard/profile" },
   { label: "Tasks", icon: <ListChecks className="w-5 h-5" />, href: "/dashboard/tasks" },
-  {
-    label: "Settings",
-    icon: <Settings className="w-5 h-5" />,
-    href: "/settings",
-  },
 ];
 
 import React from "react";
@@ -126,7 +115,7 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
               </Button>
               <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-zinc-900 rounded-xl shadow-lg p-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all">
                 <Link
-                  href="/profile"
+                  href="/dashboard/profile"
                   className="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-zinc-800"
                 >
                   Profile
@@ -270,9 +259,11 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-4">
-            <Button className="rounded-2xl px-6 py-3 font-medium shadow-md bg-primary text-white hover:bg-yellow-400 hover:text-primary transition-all">
-              See All Tasks
-            </Button>
+            <Link href="/dashboard/tasks">
+              <Button className="rounded-2xl px-6 py-3 font-medium shadow-md bg-primary text-white hover:bg-yellow-400 hover:text-primary transition-all">
+                See All Tasks
+              </Button>
+            </Link>
             
           </div>
         </main>

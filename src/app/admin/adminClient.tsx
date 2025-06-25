@@ -16,10 +16,8 @@ import Link from "next/link";
 import { logOut } from "@/auth/actions";
 
 const navItems = [
-  { label: "Dashboard", icon: <Menu className="w-5 h-5" />, href: "/admin" },
   { label: "Users", icon: <User className="w-5 h-5" />, href: "/admin/users" },
   { label: "Tasks", icon: <ListChecks className="w-5 h-5" />, href: "/admin/tasks" },
-  { label: "Settings", icon: <Settings className="w-5 h-5" />, href: "/admin/settings" },
 ];
 
 
@@ -87,7 +85,7 @@ const DashboardClient = ({ user, taskStats }: DashboardClientProps ) => {
 
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col min-h-screen ml-0 md:ml-64">
-        {/* Topbar */}
+
         <header className="sticky top-0 z-20 bg-white/80 dark:bg-zinc-900/80 shadow-sm flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-4">
             <Button
