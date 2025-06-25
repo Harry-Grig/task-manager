@@ -21,8 +21,8 @@ const navItems = [
     icon: <Menu className="w-5 h-5" />,
     href: "/dashboard",
   },
-  { label: "Profile", icon: <User className="w-5 h-5" />, href: "/profile" },
-  { label: "Tasks", icon: <ListChecks className="w-5 h-5" />, href: "/tasks" },
+  { label: "Profile", icon: <User className="w-5 h-5" />, href: "/dashboard/profile" },
+  { label: "Tasks", icon: <ListChecks className="w-5 h-5" />, href: "/dashboard/tasks" },
   {
     label: "Settings",
     icon: <Settings className="w-5 h-5" />,
@@ -32,15 +32,24 @@ const navItems = [
 
 import React from "react";
 
+type Task = {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  dueDate: string | null;
+};
+
 type UserType = {
   name: string | null;
   id: string;
   email: string;
   role: "ADMIN" | "USER";
+  tasks: Task[]; 
 };
 
 type DashboardClientProps = {
-  user: UserType | null;
+  user: UserType;
 };
 
 const DashboardClient = ({ user }: DashboardClientProps) => {
@@ -49,7 +58,7 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-gray-100 via-neutral-50 to-zinc-200 dark:from-zinc-900 dark:via-neutral-900 dark:to-gray-900">
       {/* Sidebar */}
-
+     
       <aside
         className={`fixed z-30 top-0 left-0 h-full w-64 bg-white/90 dark:bg-zinc-900/90 shadow-lg border-r border-zinc-200 dark:border-zinc-800 p-4 flex flex-col gap-4 transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -201,27 +210,27 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-3xl font-bold text-green-600 dark:text-green-400">
-                12
+                {user.tasks.filter((t) => t.status === "COMPLETED").length}
               </CardContent>
             </Card>
             <Card className="shadow-md rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-lg font-bold text-foreground">
-                  Pending Reviews
+                  In Progress
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                3
+                {user.tasks.filter((t) => t.status === "IN_PROGRESS").length}
               </CardContent>
             </Card>
             <Card className="shadow-md rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-lg font-bold text-foreground">
-                  Upcoming Tasks
+                  Pending Tasks
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                5
+              <CardContent className="text-3xl font-bold text-rose-600 dark:text-rose-400">
+                {user.tasks.filter((t) => t.status === "PENDING").length}
               </CardContent>
             </Card>
           </div>
@@ -240,25 +249,19 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
                     <tr className="text-muted-foreground">
                       <th className="px-4 py-2 text-left">Task</th>
                       <th className="px-4 py-2 text-left">Status</th>
-                      <th className="px-4 py-2 text-left">Date</th>
+                      <th className="px-4 py-2 text-left">Priority</th>
+                      <th className="px-4 py-2 text-left">Due Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className="px-4 py-2">Design new UI</td>
-                      <td className="px-4 py-2">Completed</td>
-                      <td className="px-4 py-2">2025-06-22</td>
-                    </tr>
-                    <tr className="bg-gray-50 dark:bg-zinc-800">
-                      <td className="px-4 py-2">Review PR #42</td>
-                      <td className="px-4 py-2">Pending</td>
-                      <td className="px-4 py-2">2025-06-23</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2">Update docs</td>
-                      <td className="px-4 py-2">In Progress</td>
-                      <td className="px-4 py-2">2025-06-24</td>
-                    </tr>
+                    {user.tasks.slice(0, 5).map((task) => (
+                      <tr key={task.id} className="even:bg-gray-50 dark:even:bg-zinc-800">
+                        <td className="px-4 py-2">{task.title}</td>
+                        <td className="px-4 py-2 capitalize">{task.status.toLowerCase()}</td>
+                        <td className="px-4 py-2">{task.priority}</td>
+                        <td className="px-4 py-2">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "-"}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -268,14 +271,9 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-4">
             <Button className="rounded-2xl px-6 py-3 font-medium shadow-md bg-primary text-white hover:bg-yellow-400 hover:text-primary transition-all">
-              Create New Task
+              See All Tasks
             </Button>
-            <Button
-              variant="outline"
-              className="rounded-2xl px-6 py-3 font-medium shadow-md"
-            >
-              Add Project
-            </Button>
+            
           </div>
         </main>
       </div>
