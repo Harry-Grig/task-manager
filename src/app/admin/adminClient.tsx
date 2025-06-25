@@ -34,9 +34,20 @@ type UserType = {
 
 type DashboardClientProps = {
   user: UserType | null;
+  taskStats: TaskStats;
 };
 
-const DashboardClient = ({ user }: DashboardClientProps) => {
+
+type TaskStats = {
+  COMPLETED: number;
+  IN_PROGRESS: number;
+  PENDING: number;
+};
+
+
+
+
+const DashboardClient = ({ user, taskStats }: DashboardClientProps ) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   return (
@@ -194,27 +205,27 @@ const DashboardClient = ({ user }: DashboardClientProps) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-3xl font-bold text-green-600 dark:text-green-400">
-                12
+                {taskStats.COMPLETED}
               </CardContent>
             </Card>
             <Card className="shadow-md rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-lg font-bold text-foreground">
-                  Pending Reviews
+                  In Progress
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                3
+                {taskStats.IN_PROGRESS}
               </CardContent>
             </Card>
             <Card className="shadow-md rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-lg font-bold text-foreground">
-                  Upcoming Tasks
+                  Pending Tasks
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                5
+              <CardContent className="text-3xl font-bold text-rose-600 dark:text-rose-400">
+                {taskStats.PENDING}
               </CardContent>
             </Card>
           </div>
