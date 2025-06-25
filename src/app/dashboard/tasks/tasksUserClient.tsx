@@ -2,6 +2,9 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { updateTaskStatus } from "@/app/actions/updateTasksStatues";
+import { useTransition } from "react";
+import Link from "next/link";
 
 type Task = {
   id: string;
@@ -25,21 +28,32 @@ type DashboardClientProps = {
 
 export default function UserTasksClient({ user }: DashboardClientProps) {
   const [tasks, setTasks] = useState(user.tasks);
+  const [isPending, startTransition] = useTransition();
 
-  // Dummy handler for status change (replace with API call as needed)
   const handleStatusChange = (taskId: string, newStatus: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
-      )
-    );
+    startTransition(() => {
+      updateTaskStatus(taskId, newStatus as any);
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId ? { ...task, status: newStatus } : task
+        )
+      );
+    });
   };
 
   return (
     <div className="max-w-3xl mx-auto py-10 space-y-8">
-      <h1 className="text-4xl font-extrabold mb-10 text-center tracking-tight bg-gradient-to-r from-rose-600 via-rose-400 to-rose-700 bg-clip-text text-transparent drop-shadow-lg">
-        My Tasks
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <Link href="/dashboard">
+          <Button variant="outline" className="font-semibold border-rose-400 text-rose-700 dark:border-rose-500 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900 transition-all">
+            ← Back to Dashboard
+          </Button>
+        </Link>
+        <h1 className="text-4xl font-extrabold text-center tracking-tight bg-gradient-to-r from-rose-600 via-rose-400 to-rose-700 bg-clip-text text-transparent drop-shadow-lg m-0">
+          My Tasks
+        </h1>
+        <div />
+      </div>
       {tasks.length === 0 ? (
         <Card className="bg-white/90 dark:bg-zinc-900/90 shadow-xl rounded-2xl p-12 text-center border-2 border-dashed border-rose-200 dark:border-rose-700 animate-pulse">
           <CardHeader>

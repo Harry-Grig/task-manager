@@ -27,9 +27,17 @@ type AdminUsersPageProps = {
 export default function AdminUsersPage({ users }: AdminUsersPageProps) {
     return (
         <div className="max-w-3xl mx-auto py-10 space-y-6">
-            <h1 className="text-3xl font-bold mb-6 text-rose-700 dark:text-rose-400">
-                Manage Users
-            </h1>
+            <div className="flex items-center justify-between mb-6">
+                <Link href="/admin">
+                    <Button variant="outline" className="font-semibold border-rose-400 text-rose-700 dark:border-rose-500 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900 transition-all">
+                        ← Back to Admin
+                    </Button>
+                </Link>
+                <h1 className="text-3xl font-bold text-rose-700 dark:text-rose-400 m-0">
+                    Manage Users
+                </h1>
+                <div />
+            </div>
             <div className="space-y-4">
                 {users.map((user) => (
                     <Card
